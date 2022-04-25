@@ -14,3 +14,4 @@ Real Test/hello.cpp
 Real Test/demoTest.cpp
 Real Test/compressString.cpp
 .vscode/tasks.json
+*.exe
