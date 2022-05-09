@@ -7,14 +7,14 @@
 using namespace std;
 using Mat = vector<vector<int>>;
 
-void MultiMatrix(Mat& XY, Mat& X, Mat& Y, int X_row, int X_col, int r_col)
+void MultiMatrix(Mat& XY, Mat& X, Mat& Y, int X_row, int X_col, int r_row, int r_col)
 {
 	int i, j, k;
     for(i = 0; i < X_row; i++) {
         for(j = 0; j < r_col; j++) {
             for(k = 0; k < X_col; k++) {
-				cout << i << ", " << j << ", " << k << "    ";
-				cout << X[i][k] << " * " << Y[k][j] << endl;
+				//cout << i << ", " << k << ", " << j << "    ";
+				//cout << X[i][k] << " * " << Y[k][j] << endl;
                 XY[i][j] += X[i][k] * Y[k][j];
             }
         }
@@ -22,33 +22,44 @@ void MultiMatrix(Mat& XY, Mat& X, Mat& Y, int X_row, int X_col, int r_col)
 
 }
 
-bool Freivalds(Mat& A, Mat& B, Mat& C, int K, int x, int y) {
-	int  t = 20;
-	cout << "Freivalds" << endl;
+bool Freivalds(Mat& A, Mat& B, Mat& C) {
+	int  t = 10;
+	//cout << "Freivalds" << endl;
 	while (t--) {
-		vector<int> r(K);
-		Mat R;
-		generate(r.begin(),r.end(), []()->int {return rand() % 2; });
-		for_each(r.begin(), r.end(), [](int n)->void {cout << n << " ";}); cout << endl;
-		R.push_back(r);
-		cout << "size : " << R[0].size() << endl;
+		vector<int> r(1);
+		Mat R(B[0].size(), r);
+		for_each(R.begin(), R.end(), [](vector<int>& mat)->void {mat[0] = rand()%2;});
 
-		vector<int> Br(K);
-		Mat BR;
-		BR.push_back(Br);
-		MultiMatrix(BR, B, R, B.size(), B[0].size(), R.size());
+		//for(int i=0; i<B[0].size(); i++) { cout << R[i][0] << " "; } cout << endl;
 
-		/*for (int i = 0; i < K; i++) {	
-			Br[i]=inner_product(r.begin(), r.end(), B[y+i].begin()+x, 0);
+		vector<int> Br(1);
+		Mat BR(B.size(), Br);
+		MultiMatrix(BR, B, R, B.size(), B[0].size(), R.size(), R[0].size());
+		vector<int> Cr(1);
+		Mat CR(C.size(), Cr);
+		MultiMatrix(CR, C, R, C.size(), C[0].size(), R.size(), R[0].size());
+		//cout << "CR" << endl;
+		/*for(int i=0; i<CR.size(); i++) {
+			for_each(CR[i].begin(), CR[i].end(), [](int n)->void { cout << n << " ";});
+			cout << endl;
 		}*/
 
-		//for_each(Br.begin(), Br.end(), [](int n)->void {cout << n << " ";});
-		//for (int i = 0; i < K; i++) {
-			//if (inner_product(Br.begin(), Br.end(), A[i].begin(), 0) - inner_product(r.begin(), r.end(), C[i].begin(), 0) != 0)
-				return false;
-		//}
+		Mat ABR(A.size(), Br);
+		MultiMatrix(ABR, A, BR, A.size(), A[0].size(), BR.size(), BR[0].size());
+		//cout << "ABR" << endl;
+		/*for(int i=0; i<ABR.size(); i++) {
+			for_each(ABR[i].begin(), ABR[i].end(), [](int n)->void { cout << n << " ";});
+			cout << endl;
+		}*/
+		for(int i=0; i<ABR.size(); i++) {
+			for(int j=0; j<ABR[i].size(); j++) {
+				if(ABR[i][j] - CR[i][j]) {
+					return false;
+				}
+			}
+		}
+
 	}
-	cout << "true" << endl;
 	return true;
 }
 
@@ -70,12 +81,17 @@ int main()
 		 {4, 5},
 		 {5, 6},
 		 {6, 7}};
-	B = {{1, 0, 7, 5},
-	     {1, 2, 8, 7}};
-	C = {{6, 5},
-	     {8, 7}};
-	bool ans = Freivalds(A, B, C, 10, 10, 0);
-	cout << ans << endl;
+		 //5 * 2
+	B = {{1, 1, 1, 1},
+	     {2, 2, 2, 2}};
+		 //2 * 4
+	C = {{8, 8, 8, 9},
+	     {11, 11, 11, 11},
+		 {14, 14, 14, 14},
+		 {17, 17, 17, 17},
+		 {20, 20, 20, 20}};
+	bool ans = Freivalds(A, B, C);
+	cout << "ans : " << ans << endl;
 
     return 0;
 }
